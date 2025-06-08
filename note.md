@@ -66,6 +66,29 @@ curl --location --request PUT 'http://172.16.216.38:10000/admin-api/system/manag
 }'
 ```
 
+### 创建三级道路接口
+
+```http
+curl 'http://172.16.216.38:10000/admin-api/system/manageunit/roadnet/ruralhighway/create' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: zh-CN,zh;q=0.9,zh-HK;q=0.8' \
+  -H 'Authorization: Bearer 81be840b72144a4caa821707a0c84f5b' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json' \
+  -H 'Origin: http://172.16.216.38:10003' \
+  -H 'Pragma: no-cache' \
+  -H 'Referer: http://172.16.216.38:10003/' \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36' \
+  -H 'client-type: 1' \
+  -H 'project-id: 117' \
+  -H 'tenant-id: 310112' \
+  --data-raw '{"name":"(东侧)K0+000-K0+100","parentId":1080015886,"ext3":"4","administerFlag":true,"hierarchy":3,"segmentStartId":"K0+000","segmentEndId":"K0+100","driveDirection":"east","width":10}' \
+  --insecure
+```
+
+
+
 ## 城市道路接口
 
 ### 新增一级道路接口

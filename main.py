@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from router.countryRouter import countryRouter
+from router.cityRouter import cityRouter
 
 app = FastAPI(title="Roadmap", description="路网数据采集工具")
 
@@ -16,7 +17,7 @@ app.add_middleware(
 )
 
 app.include_router(countryRouter, prefix="/countryside", tags=["农村公路相关接口"])  # type: ignore
-
+app.include_router(cityRouter, prefix="/city", tags=["城市道路相关接口"])  # type: ignore
 
 if __name__ == "__main__":
     uvicorn.run("main:app", port=8080, reload=True)

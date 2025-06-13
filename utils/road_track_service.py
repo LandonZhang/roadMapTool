@@ -1,5 +1,5 @@
 import requests
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Union
 from shapely.geometry import LineString
 import time
 import logging
@@ -28,8 +28,38 @@ class BaiduMercatorRoadTrackGenerator:
 
         logger.info("百度墨卡托道路轨迹线生成器初始化完成")
 
+    def normalize_coordinates(
+        self, coordinates: Union[List[Tuple[float, float]], List[List[float]]]
+    ) -> List[Tuple[float, float]]:
+        """
+        标准化坐标格式，将各种输入格式转换为元组列表
+
+        Args:
+            coordinates: 坐标数据，支持 [(x,y),...] 或 [[x,y],...]
+
+        Returns:
+            List[Tuple[float, float]]: 标准化的元组列表格式
+        """
+        if not coordinates:
+            raise ValueError("坐标列表不能为空")
+
+        # 检查第一个元素的类型来判断格式
+        first_item = coordinates[0]
+
+        if isinstance(first_item, (list, tuple)) and len(first_item) == 2:
+            # 转换为元组列表格式
+            normalized = [(float(coord[0]), float(coord[1])) for coord in coordinates]
+            logger.info(
+                f"坐标格式标准化完成: {type(first_item).__name__} -> tuple, 共{len(normalized)}个点"
+            )
+            return normalized
+        else:
+            raise ValueError(
+                f"无效的坐标格式: {type(first_item)}, 期望格式: [(x,y),...] 或 [[x,y],...]"
+            )
+
     def bd09_to_bd09mc(
-        self, coordinates: List[Tuple[float, float]]
+        self, coordinates: Union[List[Tuple[float, float]], List[List[float]]]
     ) -> List[Tuple[float, float]]:
         """
         使用百度API将BD-09坐标转换为BD-09MC坐标（墨卡托米制）
@@ -40,6 +70,8 @@ class BaiduMercatorRoadTrackGenerator:
         Returns:
             BD-09MC坐标列表 [(x, y), ...] 单位：米
         """
+        # 将输入的坐标列表转换为元组列表格式
+        coordinates = self.normalize_coordinates(coordinates)
         logger.info(f"开始BD-09转BD-09MC坐标转换，共{len(coordinates)}个点")
 
         # 百度API一次最多处理100个坐标点
@@ -83,7 +115,7 @@ class BaiduMercatorRoadTrackGenerator:
         return result_coords
 
     def bd09mc_to_bd09(
-        self, coordinates: List[Tuple[float, float]]
+        self, coordinates: Union[List[Tuple[float, float]], List[List[float]]]
     ) -> List[Tuple[float, float]]:
         """
         使用百度API将BD-09MC坐标转换为BD-09坐标
@@ -94,6 +126,7 @@ class BaiduMercatorRoadTrackGenerator:
         Returns:
             BD-09坐标列表 [(lng, lat), ...]
         """
+        coordinates = self.normalize_coordinates(coordinates)
         logger.info(f"开始BD-09MC转BD-09坐标转换，共{len(coordinates)}个点")
 
         # 百度API一次最多处理100个坐标点
@@ -274,7 +307,7 @@ class BaiduMercatorRoadTrackGenerator:
 
     def generate_parallel_tracks(
         self,
-        bd09_coordinates: List[Tuple[float, float]],
+        bd09_coordinates: Union[List[Tuple[float, float]], List[List[float]]],
         road_width: float,
         create_markers: bool = False,
         marker_interval: float = 100.0,
@@ -294,6 +327,7 @@ class BaiduMercatorRoadTrackGenerator:
                 'right_track': [(lng, lat), ...]   # 右轨迹线BD-09坐标
             }
         """
+        bd09_coordinates = self.normalize_coordinates(bd09_coordinates)
         logger.info(
             f"开始生成道路轨迹线，中心线点数: {len(bd09_coordinates)}, 道路宽度: {road_width}米"
         )
@@ -319,7 +353,7 @@ class BaiduMercatorRoadTrackGenerator:
                 mc_coords, offset_distance, "right"
             )
 
-            # 步骤2.5: 每隔100m 创造一个标点
+            # 步骤2.5: 每隔 marker_interval 创造一个标点
             if create_markers:
                 logger.info(f"步骤2.5: 创建标点，间隔{marker_interval}米")
                 left_markers_mc = self.create_road_segments_along_track(
@@ -361,7 +395,9 @@ class BaiduMercatorRoadTrackGenerator:
             logger.error(f"生成道路轨迹线失败: {e}")
             raise
 
-    def validate_coordinates(self, coordinates: List[Tuple[float, float]]) -> bool:
+    def validate_coordinates(
+        self, coordinates: Union[List[Tuple[float, float]], List[List[float]]]
+    ) -> bool:
         """
         验证坐标的有效性
 
@@ -371,6 +407,7 @@ class BaiduMercatorRoadTrackGenerator:
         Returns:
             bool: 坐标是否有效
         """
+        coordinates = self.normalize_coordinates(coordinates)
         for lng, lat in coordinates:
             # 检查经纬度范围（BD-09坐标系的大致范围）
             if not (-180 <= lng <= 180) or not (-90 <= lat <= 90):
@@ -399,9 +436,9 @@ def main():
     # test_road_width = 28.9548
 
     test_center_line = [
-        (103.93815560196539, 30.59308015442757),
-        (103.94047249559775, 30.59441859058116),
-        (103.94047249559775, 30.59441859058116),
+        [103.93815560196539, 30.59308015442757],
+        [103.94047249559775, 30.59441859058116],
+        [103.94047249559775, 30.59441859058116],
     ]
 
     test_road_width = 12.88

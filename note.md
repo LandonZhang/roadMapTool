@@ -87,6 +87,34 @@ curl 'http://172.16.216.38:10000/admin-api/system/manageunit/roadnet/ruralhighwa
   --insecure
 ```
 
+### 标记坐标时的信息
+
+每次标记完成后，会请求这个接口？
+
+```http
+curl 'http://api.map.baidu.com/?qt=jsapi_log&ak=ldSAKPGxRY96kDuG8iCrv6Pr9Ctxgjda&bmapgl2=1&device=0&module=overlay&func=user_custom&subfunc=&t=1749608179140&callback=BMapGL.logCbk7863890649&sign=0c19998864d3&v=gl' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: zh-CN,zh;q=0.9,zh-HK;q=0.8' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Pragma: no-cache' \
+  -H 'Proxy-Connection: keep-alive' \
+  -H 'Referer: http://121.41.10.16:8000/' \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36' \
+  --insecure
+```
+
+**实验系统的坐标记录方式**
+
+```json
+[{"type":"Feature","geometry":{"type":"LineString","coordinates":[[116.73391202770121,39.53524631214859],[116.7350841308165,39.535329381280846]],"length":0.10093989106961236}}]
+```
+
+**实际系统的坐标记录方式**
+
+```json
+[{"type":"Feature","geometry":{"type":"LineString","coordinates":[[121.41918692543572,31.145199174085366],[121.41874378124909,31.146018129415523]],"length":0.10035512360127939}},{"type":"Feature","geometry":{"type":"Point","coordinates":[121.41918692543572,31.145199174085366]}},{"type":"Feature","geometry":{"type":"Point","coordinates":[121.41874378124909,31.146018129415523]}},{"type":"Feature","geometry":{"type":"Point","coordinates":[121.41874378124902,31.146017985955012]}}]
+```
+
 
 
 ## 城市道路接口
@@ -224,5 +252,9 @@ curl 'http://172.16.216.38:10000/admin-api/system/manageunit/roadnet/cityroad/up
 
 - [x] 农村道路二级、三级添加，系统目前手动添加也会出问题（已经解决）
 
+---
 
-
+- [x] 红松东路的交叉路口
+- [x] 古羊路的交叉路口
+- [x] 吴中路的交叉路口
+- [ ] 蒲汇塘的交叉路口

@@ -493,13 +493,23 @@ class CountryRoadService(BaseDataService):
                     results["level2_ids"].append(level2_id)
 
                     # 为每个行车方向创建三级道路
-                    for direction_label in processed_data["drive_direction_values"]:
+                    for idx, direction_label in enumerate(
+                        processed_data["drive_direction_values"]
+                    ):
                         try:
+                            # 第一个方向标签使用原始顺序，第二个方向标签反转起点终点
+                            if idx == 0:
+                                start_stake = segment_start
+                                end_stake = segment_end
+                            else:
+                                start_stake = segment_end
+                                end_stake = segment_start
+
                             level3_id = self.create_road_level3(
                                 processed_data,
                                 level2_id,
-                                segment_start,
-                                segment_end,
+                                start_stake,
+                                end_stake,
                                 direction_label,
                             )
                             results["level3_ids"].append(level3_id)
